@@ -4,7 +4,7 @@ import { FaAngleRight } from "react-icons/fa";
 
 export default function page() {
   return (
-    <section className="flex flex-col gap-y-10 justify-between mt-20 max-w-[1500px] mx-auto sm:px-[75px] px-2">
+    <section className="overflow-x-hidden flex flex-col gap-y-10 justify-between mt-20 max-w-[1500px] mx-auto sm:px-[75px] px-2">
       <div className="flex flex-row items-center gap-x-2 font-satoshi text-base px-1">
         <p className="text-black/60">Home</p>
         <FaAngleRight />

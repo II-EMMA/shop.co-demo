@@ -24,7 +24,7 @@ export default async function Page({ params }) {
     routingName = "Jeans";
   }
   return (
-    <section className="relative flex flex-col gap-y-10 justify-between mt-20 max-w-[1500px] mx-auto md:px-12 px-8">
+    <section className="overflow-x-hidden relative flex flex-col gap-y-10 justify-between mt-20 max-w-[1500px] mx-auto md:px-12 px-8">
       {/* Breadcrumb */}
       <div className="flex flex-row items-center gap-x-2.5 font-satoshi text-base px-1">
         <p className="text-black/60">Home</p>

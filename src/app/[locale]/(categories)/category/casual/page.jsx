@@ -30,7 +30,7 @@ function PageContent() {
       {/* Overlay + Filter Popup */}
       {showFilterPopup && (
         <div
-          className="fixed inset-0 z-[999] bg-white/50 backdrop-blur-sm flex items-center justify-center mt-32"
+          className="overflow-x-hidden fixed inset-0 z-[999] bg-white/50 backdrop-blur-sm flex items-center justify-center mt-32"
           onClick={() => setShowFilterPopup(false)}
         >
           <div
