@@ -28,7 +28,7 @@ export default function WishlistIconButton() {
       {count > 0 && (
         <div
           ref={badgeRef}
-          className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-black text-white text-[10px] font-bold flex items-center justify-center shadow-md"
+          className="absolute -top-1 -right-1 sm:w-auto sm:h-auto w-5 h-5 rounded-full bg-black text-white text-[10px] font-bold flex items-center justify-center shadow-md"
         >
           {count}
         </div>

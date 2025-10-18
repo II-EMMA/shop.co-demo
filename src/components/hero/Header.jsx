@@ -26,21 +26,28 @@ export default function Header() {
   const desktopSearchRef = useRef(null);
   const mobileSearchRef = useRef(null);
 
+  // ✅ Animate mobile search popout
   useEffect(() => {
     if (showSearch && mobileSearchRef.current) {
-      gsap.fromTo(
-        mobileSearchRef.current,
-        { opacity: 0, y: -20, scale: 0.95 },
-        { opacity: 1, y: 0, scale: 1, duration: 0.4, ease: "power3.out" }
-      );
+      requestAnimationFrame(() => {
+        gsap.fromTo(
+          mobileSearchRef.current,
+          { opacity: 0, y: -20, scale: 0.95 },
+          { opacity: 1, y: 0, scale: 1, duration: 0.4, ease: "power3.out" }
+        );
+      });
     }
   }, [showSearch]);
 
+  // ✅ Only close search if drawer is toggled open
   useEffect(() => {
-    setShowSearch(false);
-    setOpen(false);
+    if (toggle) {
+      setShowSearch(false);
+      setOpen(false);
+    }
   }, [toggle]);
 
+  // ✅ Unified outside click detection
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (
@@ -49,13 +56,7 @@ export default function Header() {
       ) {
         setIsSearchActive(false);
       }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
-  useEffect(() => {
-    const handleClickOutside = (e) => {
       if (
         mobileSearchRef.current &&
         !mobileSearchRef.current.contains(e.target)
@@ -63,6 +64,7 @@ export default function Header() {
         setShowSearch(false);
       }
     };
+
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
@@ -107,6 +109,7 @@ export default function Header() {
         <Logo toggle={toggle} setToggle={setToggle} />
         <DesktopNav open={open} setOpen={setOpen} />
 
+        {/* Desktop search */}
         <div
           ref={desktopSearchRef}
           className="relative flex-1 max-w-xl md:block hidden"
@@ -121,31 +124,33 @@ export default function Header() {
           />
         </div>
 
-        <div className="flex flex-row md:gap-x-2 gap-x-4 text-2xl items-center">
+        {/* Icons */}
+        <div className="flex flex-row md:gap-x-2 gap-x-1 text-2xl items-center">
           <button
             onClick={() => setShowSearch((prev) => !prev)}
             className="md:hidden block"
           >
-            <CgSearch />
+            <CgSearch className="sm:w-auto sm:h-auto w-5 h-5" />
           </button>
           <CartIconButton />
           <AuthIconButton />
           <WishlistIconButton />
         </div>
-
-        {showSearch && (
-          <div ref={mobileSearchRef}>
-            <SearchPopout
-              toggle={toggle}
-              query={query}
-              onSearch={handleSearch}
-              results={results}
-              onClose={handleCloseSearch}
-              error={error}
-            />
-          </div>
-        )}
       </div>
+
+      {/* Mobile search popout */}
+      {showSearch && (
+        <div className="relative w-full" ref={mobileSearchRef}>
+          <SearchPopout
+            toggle={toggle}
+            query={query}
+            onSearch={handleSearch}
+            results={results}
+            onClose={handleCloseSearch}
+            error={error}
+          />
+        </div>
+      )}
 
       <MobileDrawer open={open} setOpen={setOpen} toggle={toggle} />
     </header>

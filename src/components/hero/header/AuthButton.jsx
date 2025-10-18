@@ -57,7 +57,7 @@ export default function AuthIconButton() {
       className="cursor-pointer relative group"
       ref={buttonRef}
     >
-      <CgProfile size={24} />
+      <CgProfile className="sm:w-auto sm:h-auto w-5 h-5" />
       <span className="font-satoshi font-medium absolute top-6 left-1/2 -translate-x-1/2 bg-white border border-black/10 text-black lg:text-xs text-[10px] px-2 py-1 rounded-xl shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
         {tooltip}
       </span>

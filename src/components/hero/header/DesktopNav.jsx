@@ -5,7 +5,7 @@ import { FaAngleDown } from "react-icons/fa";
 
 export default function DesktopNav({ open, setOpen }) {
   return (
-    <nav className="flex-row gap-x-5 opacity-95 font-satoshi relative md:flex hidden">
+    <nav className="flex-row lg:gap-x-5 gap-x-3 items-center opacity-95 font-satoshi relative md:flex hidden">
       <div className="flex items-center gap-x-1 relative">
         <Link href="/">Shop</Link>
         <button

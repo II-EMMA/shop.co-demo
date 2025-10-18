@@ -33,7 +33,7 @@ export default function CartCard() {
   const { cartItems, removeFromCart, updateQuantity } = useCart();
 
   return (
-    <div className="lg:w-7/12 w-full flex flex-col gap-y-6 p-6 rounded-[20px] border border-black/10">
+    <div className="lg:w-7/12 w-full flex flex-col gap-y-6 sm:p-6 p-3.5 rounded-[20px] border border-black/10">
       {cartItems.map((item) => {
         const { id, selectedColor, selectedSize, quantity, price, variantKey } =
           item;
@@ -99,7 +99,7 @@ export default function CartCard() {
                 </div>
               </div>
             </div>
-            <span className="inline-block w-full h-px bg-black/10 mt-7" />
+            <span className="inline-block w-full h-px bg-black/10 sm:mt-7 mt-5" />
           </div>
         );
       })}

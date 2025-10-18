@@ -23,7 +23,7 @@ export default function CartIconButton() {
   return (
     <div className="relative w-10 h-10 flex items-center justify-center">
       <Link href="/en/cart">
-        <CgShoppingCart className="text-black" />
+        <CgShoppingCart className="text-black sm:w-auto sm:h-auto w-5 h-5" />
       </Link>
       {totalCount > 0 && (
         <div
