@@ -10,7 +10,7 @@ const SearchPopout = forwardRef(
     return (
       <div
         ref={ref}
-        className={`absolute md:hidden top-full left-1/2 mt-4 z-[5000] ${
+        className={`absolute md:hidden top-full left-1/2 mt-4 z-[5000] overflow-hidden ${
           toggle ? "w-5/12" : "w-3/4"
         } -translate-x-1/2`}
       >
