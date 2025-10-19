@@ -13,7 +13,7 @@ export default function HeroText() {
       </p>
       <Link
         href="/en/category/casual"
-        className="xl:self-start self-center pointer-events-auto font-satoshi font-medium text-base text-white bg-black px-14 py-4 rounded-full cursor-pointer"
+        className="xl:self-start self-center text-center pointer-events-auto font-satoshi font-medium text-base text-white bg-black px-14 py-4 rounded-full cursor-pointer"
       >
         Shop Now
       </Link>

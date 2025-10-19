@@ -47,8 +47,8 @@ export default function ProductCount({
   }, []);
 
   return (
-    <div className="flex sm:flex-row flex-col items-center sm:gap-x-5 gap-y-3 sm:gap-y-0">
-      <div className="flex flex-row items-center justify-between bg-[#F0F0F0] rounded-3xl w-1/3 py-2 px-8">
+    <div className="flex sm:flex-row flex-col items-center sm:gap-x-5 gap-y-4 sm:gap-y-0 sm:mt-0 mt-4">
+      <div className="flex flex-row items-center justify-between bg-[#F0F0F0] rounded-3xl sm:w-1/3 w-1/2 py-2 px-8">
         <button
           onClick={() => updateCount(-1)}
           className="text-2xl font-bold cursor-pointer select-none"

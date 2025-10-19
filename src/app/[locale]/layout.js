@@ -6,6 +6,7 @@ import { CartProvider } from "@/context/CartContext";
 import AuthProvider from "@/lib/auth/AuthProvider";
 import { WishlistProvider } from "@/context/WishlistContext";
 import { Toaster } from "react-hot-toast";
+import ScrollToTop from "@/components/scroll/ScrollToTop";
 
 const satoshi = localFont({
   src: "../../fonts/Satoshi/Satoshi.ttf",
@@ -68,6 +69,7 @@ export default async function RootLayout({ children }) {
           <NextIntlClientProvider>
             <CartProvider>
               <WishlistProvider>
+                <ScrollToTop />
                 {children}
                 <Toaster position="top-center" />
               </WishlistProvider>

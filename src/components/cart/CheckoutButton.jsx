@@ -4,23 +4,22 @@ import { FaArrowRight } from "react-icons/fa6";
 import { useCart } from "@/context/CartContext";
 
 export default function CheckoutButton() {
-  const { cartItems, clearCart } = useCart();
+  const { cartItems } = useCart();
 
   const handleCheckout = async () => {
     if (cartItems.length === 0) return;
 
-    const res = await fetch("/api/purchase", {
+    const res = await fetch("/api/stripe/checkout", {
       method: "POST",
       body: JSON.stringify({ cartItems }),
       headers: { "Content-Type": "application/json" },
     });
 
     const data = await res.json();
-    if (res.ok) {
-      alert("Purchase saved!");
-      clearCart();
+    if (res.ok && data.url) {
+      window.location.href = data.url;
     } else {
-      alert("Error: " + data.error);
+      alert("Error: " + data.error || "Unable to create Stripe session");
     }
   };
 

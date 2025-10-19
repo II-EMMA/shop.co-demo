@@ -1,7 +1,6 @@
 "use client";
 
 import { useWishlist } from "@/context/WishlistContext";
-import { useCart } from "@/context/CartContext";
 import { ProductCards } from "@/mocks/Products";
 import { RiDeleteBinFill } from "react-icons/ri";
 import { BsCartPlus } from "react-icons/bs";
@@ -11,7 +10,6 @@ import getNearestColorName from "@/lib/wishlist/getNearestColorName";
 
 export default function WishlistCard() {
   const { wishlistItems, removeFromWishlist } = useWishlist();
-  const { addToCart } = useCart();
   const containerRef = useRef();
 
   useEffect(() => {
@@ -25,6 +23,34 @@ export default function WishlistCard() {
       ease: "power2.out",
     });
   }, [wishlistItems]);
+
+  const handleBuyNow = async (item) => {
+    const product = ProductCards.find((p) => p.id === item.productId);
+    if (!product) return;
+
+    const cartItem = {
+      title: product.title,
+      image: product.image?.src?.startsWith("http")
+        ? product.image.src
+        : "https://via.placeholder.com/150",
+      price: product.price,
+      quantity: 1,
+    };
+
+    try {
+      const res = await fetch("/api/stripe/checkout", {
+        method: "POST",
+        body: JSON.stringify({ cartItems: [cartItem] }),
+      });
+
+      const data = await res.json();
+      if (data?.url) {
+        window.location.href = data.url;
+      }
+    } catch (err) {
+      console.error("Stripe checkout error:", err);
+    }
+  };
 
   return (
     <div
@@ -81,22 +107,13 @@ export default function WishlistCard() {
 
             {/* Actions */}
             <div className="flex flex-row items-center md:gap-x-4 md:w-auto justify-between md:justify-stretch w-full px-3 md:px-0">
-              {/* Add to Cart */}
+              {/* Buy Now */}
               <button
-                onClick={() =>
-                  addToCart({
-                    product,
-                    quantity: 1,
-                    selectedColors: item.selectedColor
-                      ? [item.selectedColor]
-                      : [],
-                    selectedSizes: item.selectedSize ? [item.selectedSize] : [],
-                  })
-                }
+                onClick={() => handleBuyNow(item)}
                 className="bg-black text-white px-4 py-2 rounded-full hover:bg-gray-800 transition-all flex items-center gap-x-2"
               >
                 <BsCartPlus size={18} />
-                <span className="text-sm font-satoshi">Add to Cart</span>
+                <span className="text-sm font-satoshi">Buy now</span>
               </button>
 
               {/* Delete */}

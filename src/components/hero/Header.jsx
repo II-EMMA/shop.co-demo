@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 import Logo from "./header/Logo";
 import DesktopNav from "./header/DesktopNav";
 import MobileDrawer from "./header/MobileDrawer";
@@ -22,9 +23,12 @@ export default function Header() {
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [error, setError] = useState(null);
 
+  const pathname = usePathname();
+  const drawerRef = useRef(null);
   const debounceTimer = useRef(null);
   const desktopSearchRef = useRef(null);
   const mobileSearchRef = useRef(null);
+  const desktopMenuRef = useRef(null); // ✅ new ref for desktop dropdown
 
   // ✅ Animate mobile search popout
   useEffect(() => {
@@ -39,17 +43,37 @@ export default function Header() {
     }
   }, [showSearch]);
 
-  // ✅ Only close search if drawer is toggled open
+  // ✅ Close drawer/search on any route or hash change
   useEffect(() => {
-    if (toggle) {
-      setShowSearch(false);
+    const closeDrawerOnRouteChange = () => {
+      setToggle(false);
       setOpen(false);
-    }
-  }, [toggle]);
+      setShowSearch(false);
+    };
 
-  // ✅ Unified outside click detection
+    window.addEventListener("hashchange", closeDrawerOnRouteChange);
+    window.addEventListener("popstate", closeDrawerOnRouteChange);
+
+    return () => {
+      window.removeEventListener("hashchange", closeDrawerOnRouteChange);
+      window.removeEventListener("popstate", closeDrawerOnRouteChange);
+    };
+  }, []);
+
+  useEffect(() => {
+    setToggle(false);
+    setOpen(false);
+    setShowSearch(false);
+  }, [pathname]);
+
+  // ✅ Outside click detection
   useEffect(() => {
     const handleClickOutside = (e) => {
+      // ignore clicks inside desktop dropdown
+      if (desktopMenuRef.current && desktopMenuRef.current.contains(e.target)) {
+        return;
+      }
+
       if (
         desktopSearchRef.current &&
         !desktopSearchRef.current.contains(e.target)
@@ -62,6 +86,11 @@ export default function Header() {
         !mobileSearchRef.current.contains(e.target)
       ) {
         setShowSearch(false);
+      }
+
+      if (drawerRef.current && !drawerRef.current.contains(e.target)) {
+        setToggle(false);
+        setOpen(false);
       }
     };
 
@@ -103,11 +132,18 @@ export default function Header() {
     setIsSearchActive(false);
   };
 
+  const handleCloseDrawer = () => {
+    setToggle(false);
+    setOpen(false);
+    setShowSearch(false);
+  };
+
   return (
     <header className="fixed top-0 left-0 w-full bg-white md:shadow-none border-b border-black/10 z-[9999]">
-      <div className="max-w-[1500px] mx-auto flex justify-between gap-x-4 items-center pr-11 pl-2 md:py-6 py-2 relative">
+      <div className="max-w-[1500px] mx-auto flex justify-between gap-x-4 items-center md:pr-11 pr-4.5 pl-2 md:py-6 py-2 relative">
         <Logo toggle={toggle} setToggle={setToggle} />
-        <DesktopNav open={open} setOpen={setOpen} />
+        {/* ✅ pass desktopMenuRef down */}
+        <DesktopNav open={open} setOpen={setOpen} menuRef={desktopMenuRef} />
 
         {/* Desktop search */}
         <div
@@ -152,7 +188,13 @@ export default function Header() {
         </div>
       )}
 
-      <MobileDrawer open={open} setOpen={setOpen} toggle={toggle} />
+      <MobileDrawer
+        open={open}
+        setOpen={setOpen}
+        toggle={toggle}
+        drawerRef={drawerRef}
+        handleCloseDrawer={handleCloseDrawer}
+      />
     </header>
   );
 }
