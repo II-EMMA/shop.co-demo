@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 
-export default function Logo({ toggle, setToggle }) {
+export default function Logo({ toggle, setToggle, burgerRef }) {
   return (
     <div className="flex flex-row items-center md:gap-x-0 gap-x-2">
       <button
+        ref={burgerRef}
         onClick={() => setToggle((prev) => !prev)}
         className={`menu ${
           toggle ? "opened" : ""

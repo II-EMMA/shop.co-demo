@@ -27,6 +27,7 @@ export default function MobileDrawer({
           <Link href="/#brands" onClick={handleCloseDrawer}>
             Brands
           </Link>
+
           <div className="flex items-center gap-x-1 relative">
             <Link href="/en/category/casual" onClick={handleCloseDrawer}>
               Shop
@@ -39,6 +40,7 @@ export default function MobileDrawer({
             >
               <FaAngleDown className="cursor-pointer" />
             </button>
+
             {open && (
               <div className="absolute top-full mt-2 left-0 bg-white shadow-xl rounded-2xl w-28 z-50 transition-all duration-300">
                 <ul className="flex flex-col text-sm text-gray-700">

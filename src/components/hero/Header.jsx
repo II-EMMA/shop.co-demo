@@ -25,6 +25,7 @@ export default function Header() {
 
   const pathname = usePathname();
   const drawerRef = useRef(null);
+  const burgerRef = useRef(null);
   const debounceTimer = useRef(null);
   const desktopSearchRef = useRef(null);
   const mobileSearchRef = useRef(null);
@@ -67,8 +68,14 @@ export default function Header() {
   }, [pathname]);
 
   // ✅ Outside click detection
+  // ✅ Outside click detection
   useEffect(() => {
     const handleClickOutside = (e) => {
+      // ⬇️ put it here, at the very start
+      if (burgerRef.current && burgerRef.current.contains(e.target)) {
+        return;
+      }
+
       // ignore clicks inside desktop dropdown
       if (desktopMenuRef.current && desktopMenuRef.current.contains(e.target)) {
         return;
@@ -141,7 +148,7 @@ export default function Header() {
   return (
     <header className="fixed top-0 left-0 w-full bg-white md:shadow-none border-b border-black/10 z-[9999]">
       <div className="max-w-[1500px] mx-auto flex justify-between gap-x-4 items-center md:pr-11 pr-4.5 pl-2 md:py-6 py-2 relative">
-        <Logo toggle={toggle} setToggle={setToggle} />
+        <Logo toggle={toggle} setToggle={setToggle} burgerRef={burgerRef} />
         {/* ✅ pass desktopMenuRef down */}
         <DesktopNav open={open} setOpen={setOpen} menuRef={desktopMenuRef} />
 
