@@ -7,6 +7,7 @@ import { BsCartPlus } from "react-icons/bs";
 import gsap from "gsap";
 import { useEffect, useRef, useState } from "react";
 import getNearestColorName from "@/lib/wishlist/getNearestColorName";
+import { useSession, signIn } from "next-auth/react";
 
 export default function WishlistCard({
   items: externalItems,
@@ -14,6 +15,7 @@ export default function WishlistCard({
   onItemRemoved,
 }) {
   const { wishlistItems, removeFromWishlist } = useWishlist();
+  const { data: session } = useSession();
   const containerRef = useRef();
   const [localItems, setLocalItems] = useState([]);
 
@@ -46,6 +48,12 @@ export default function WishlistCard({
   }
 
   const handleBuyNow = async (item) => {
+    if (!session?.user) {
+      const callbackUrl = window.location.href;
+      await signIn("google", { callbackUrl });
+      return;
+    }
+
     const product = ProductCards.find((p) => p.id === item.productId);
     if (!product) return;
 
@@ -133,7 +141,7 @@ export default function WishlistCard({
             </div>
 
             {/* Actions */}
-            <div className="flex flex-row items-center md:gap-x-4 md:w-auto justify-between md:justify-stretch w-full px-3 md:px-0">
+            <div className="flex flex-row items-center md:gap-x-4 md:w-auto justify-center gap-x-8 md:justify-stretch w-full px-3 md:px-0">
               <button
                 type="button"
                 onClick={() => handleBuyNow(item)}

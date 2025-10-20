@@ -38,8 +38,8 @@ export async function POST(request) {
       payment_method_types: ["card"],
       line_items,
       mode: "payment",
-      success_url: `${origin}/success`,
-      cancel_url: `${origin}/cart`,
+      success_url: `${origin}/en`,
+      cancel_url: `${origin}/en`,
       customer_email: session.user.email,
     });
 
