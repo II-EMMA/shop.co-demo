@@ -23,5 +23,9 @@ export const authOptions = {
       }
       return session;
     },
+    async signIn({ user, account, profile }) {
+      // Allow sign-in even if account isn't linked yet
+      return true;
+    },
   },
 };

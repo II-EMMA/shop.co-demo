@@ -1,10 +1,12 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 
 const WishlistContext = createContext();
 
 export function WishlistProvider({ children }) {
+  const { data: session, status } = useSession();
   const [wishlistItems, setWishlistItems] = useState([]);
 
   const fetchWishlist = async () => {
@@ -27,8 +29,26 @@ export function WishlistProvider({ children }) {
   };
 
   useEffect(() => {
-    fetchWishlist();
-  }, []);
+    if (status === "authenticated") {
+      fetchWishlist();
+    }
+  }, [status]);
+
+  const removeFromWishlist = async (variantKey) => {
+    try {
+      await fetch("/api/wishlist", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ variantKey }),
+      });
+
+      setWishlistItems((prev) =>
+        prev.filter((item) => item.variantKey !== variantKey)
+      );
+    } catch (err) {
+      console.error("Failed to delete variant:", err);
+    }
+  };
 
   const addToWishlist = async ({
     productId,
@@ -68,25 +88,9 @@ export function WishlistProvider({ children }) {
           })
         )
       );
-      await fetchWishlist();
+      fetchWishlist();
     } catch (err) {
       console.error("Failed to add to wishlist:", err);
-    }
-  };
-
-  const removeFromWishlist = async (variantKey) => {
-    try {
-      await fetch("/api/wishlist", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ variantKey }),
-      });
-
-      setWishlistItems((prev) =>
-        prev.filter((item) => item.variantKey !== variantKey)
-      );
-    } catch (err) {
-      console.error("Failed to delete variant:", err);
     }
   };
 

@@ -1,13 +1,15 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 
 const CartContext = createContext();
 
 export function CartProvider({ children }) {
+  const { data: session, status } = useSession();
   const [cartItems, setCartItems] = useState([]);
 
-  // ✅ Add to cart (unchanged)
+  // ✅ Add to cart
   const addToCart = ({
     product,
     quantity,
@@ -19,7 +21,6 @@ export function CartProvider({ children }) {
       return;
 
     const combinations = [];
-
     selectedColors.forEach((color) => {
       selectedSizes.forEach((size) => {
         combinations.push({ color, size });
@@ -107,17 +108,19 @@ export function CartProvider({ children }) {
     }
   };
 
-  // ✅ Load on mount
+  // ✅ Load on mount (only when authenticated)
   useEffect(() => {
-    loadCartFromDB();
-  }, []);
+    if (status === "authenticated") {
+      loadCartFromDB();
+    }
+  }, [status]);
 
   // ✅ Sync on change
   useEffect(() => {
-    if (cartItems.length > 0) {
+    if (status === "authenticated" && cartItems.length > 0) {
       syncCartToDB(cartItems);
     }
-  }, [cartItems]);
+  }, [cartItems, status]);
 
   return (
     <CartContext.Provider
