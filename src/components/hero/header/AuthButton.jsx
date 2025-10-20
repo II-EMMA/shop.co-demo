@@ -39,7 +39,6 @@ export default function AuthIconButton() {
   }, [status, session]);
 
   const handleClick = async () => {
-    console.log("Auth button clicked");
     if (status === "authenticated") {
       signOut({ callbackUrl: "/" });
     } else {
