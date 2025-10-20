@@ -1,18 +1,19 @@
 "use client";
 
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 
 const CartContext = createContext();
 
 export function CartProvider({ children }) {
   const [cartItems, setCartItems] = useState([]);
 
+  // ✅ Add to cart (unchanged)
   const addToCart = ({
     product,
     quantity,
     selectedColors,
     selectedSizes,
-    selectedStyle, // optional future variant
+    selectedStyle,
   }) => {
     if (!product?.id || !selectedColors?.length || !selectedSizes?.length)
       return;
@@ -54,12 +55,19 @@ export function CartProvider({ children }) {
     });
   };
 
-  const removeFromCart = (variantKey) => {
+  // ✅ Remove item
+  const removeFromCart = async (variantKey) => {
     setCartItems((prev) =>
       prev.filter((item) => item.variantKey !== variantKey)
     );
+    await fetch("/api/cart/remove", {
+      method: "POST",
+      body: JSON.stringify({ variantKey }),
+      headers: { "Content-Type": "application/json" },
+    });
   };
 
+  // ✅ Update quantity
   const updateQuantity = (variantKey, quantity) => {
     setCartItems((prev) =>
       prev.map((item) =>
@@ -70,7 +78,46 @@ export function CartProvider({ children }) {
     );
   };
 
+  // ✅ Clear cart
   const clearCart = () => setCartItems([]);
+
+  // ✅ Load cart from MongoDB
+  const loadCartFromDB = async () => {
+    try {
+      const res = await fetch("/api/cart/load");
+      const data = await res.json();
+      if (Array.isArray(data.cartItems)) {
+        setCartItems(data.cartItems);
+      }
+    } catch (err) {
+      console.error("Failed to load cart:", err);
+    }
+  };
+
+  // ✅ Sync cart to MongoDB
+  const syncCartToDB = async (items) => {
+    try {
+      await fetch("/api/cart/save", {
+        method: "POST",
+        body: JSON.stringify({ cartItems: items }),
+        headers: { "Content-Type": "application/json" },
+      });
+    } catch (err) {
+      console.error("Failed to sync cart:", err);
+    }
+  };
+
+  // ✅ Load on mount
+  useEffect(() => {
+    loadCartFromDB();
+  }, []);
+
+  // ✅ Sync on change
+  useEffect(() => {
+    if (cartItems.length > 0) {
+      syncCartToDB(cartItems);
+    }
+  }, [cartItems]);
 
   return (
     <CartContext.Provider

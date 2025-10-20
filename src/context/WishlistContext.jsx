@@ -7,12 +7,26 @@ const WishlistContext = createContext();
 export function WishlistProvider({ children }) {
   const [wishlistItems, setWishlistItems] = useState([]);
 
-  useEffect(() => {
-    const fetchWishlist = async () => {
+  const fetchWishlist = async () => {
+    try {
       const res = await fetch("/api/wishlist");
-      const data = await res.json();
+      const text = await res.text();
+
+      if (!text) {
+        console.warn("Empty response from wishlist API");
+        setWishlistItems([]);
+        return;
+      }
+
+      const data = JSON.parse(text);
       setWishlistItems(data.items || []);
-    };
+    } catch (err) {
+      console.error("Failed to fetch wishlist:", err);
+      setWishlistItems([]);
+    }
+  };
+
+  useEffect(() => {
     fetchWishlist();
   }, []);
 
@@ -44,29 +58,36 @@ export function WishlistProvider({ children }) {
 
     if (newItems.length === 0) return;
 
-    await Promise.all(
-      newItems.map((item) =>
-        fetch("/api/wishlist", {
-          method: "POST",
-          body: JSON.stringify(item),
-          headers: { "Content-Type": "application/json" },
-        })
-      )
-    );
-
-    const res = await fetch("/api/wishlist");
-    const data = await res.json();
-    setWishlistItems(data.items || []);
+    try {
+      await Promise.all(
+        newItems.map((item) =>
+          fetch("/api/wishlist", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(item),
+          })
+        )
+      );
+      await fetchWishlist();
+    } catch (err) {
+      console.error("Failed to add to wishlist:", err);
+    }
   };
 
   const removeFromWishlist = async (variantKey) => {
-    await fetch(`/api/wishlist/${variantKey}`, { method: "DELETE" });
-    setWishlistItems((prev) => prev.filter((i) => i.variantKey !== variantKey));
-  };
+    try {
+      await fetch("/api/wishlist", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ variantKey }),
+      });
 
-  const removeProductFromWishlist = async (productId) => {
-    setWishlistItems((prev) => prev.filter((i) => i.productId !== productId));
-    await fetch(`/api/wishlist/${productId}`, { method: "DELETE" });
+      setWishlistItems((prev) =>
+        prev.filter((item) => item.variantKey !== variantKey)
+      );
+    } catch (err) {
+      console.error("Failed to delete variant:", err);
+    }
   };
 
   return (
@@ -75,7 +96,6 @@ export function WishlistProvider({ children }) {
         wishlistItems,
         addToWishlist,
         removeFromWishlist,
-        removeProductFromWishlist,
       }}
     >
       {children}

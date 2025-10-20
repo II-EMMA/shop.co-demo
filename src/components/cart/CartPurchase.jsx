@@ -11,7 +11,10 @@ export default function CartPurchase() {
   const [appliedCode, setAppliedCode] = useState(null);
 
   const subtotal = cartItems.reduce((acc, item) => {
-    const numericPrice = parseFloat(item.price.replace("$", ""));
+    const numericPrice =
+      typeof item.price === "string"
+        ? parseFloat(item.price.replace(/[^0-9.]/g, ""))
+        : item.price;
     return acc + numericPrice * item.quantity;
   }, 0);
 
@@ -57,7 +60,7 @@ export default function CartPurchase() {
       </div>
 
       <div className="flex-1 flex flex-row w-full gap-x-3 items-center">
-        <div className="relative w-full max-w-xl md:block hidden">
+        <div className="relative w-full max-w-xl">
           <ImPriceTag
             size={18}
             className="absolute left-4 top-1/2 -translate-y-[40%] text-black/60 opacity-40 text-xl rotate-270"

@@ -15,13 +15,13 @@ export default function ProductCard({ product }) {
   const [selectedSizes, setSelectedSizes] = useState([]);
   const { data: session } = useSession();
 
-  const handleWishlistFeedback = (type) => {
-    if (type === "warn") {
-      toast.error("Please select both color and size");
-    } else if (type === "success") {
-      toast.success("Added to wishlist");
-    }
-  };
+  // const handleWishlistFeedback = (type) => {
+  //   if (type === "warn") {
+  //     toast.error("Please select both color and size");
+  //   } else if (type === "success") {
+  //     toast.success("Added to wishlist");
+  //   }
+  // };
 
   return (
     <div className="flex flex-col gap-y-0.5">

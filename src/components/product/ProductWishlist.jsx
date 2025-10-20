@@ -9,30 +9,28 @@ export default function ProductWishlist({
   product,
   selectedColors,
   selectedSizes,
-  onFeedback, // ✅ Add this
+  onFeedback,
 }) {
-  const { data: session } = useSession();
-
+  const { data: session, status } = useSession();
   const { wishlistItems, addToWishlist, removeProductFromWishlist } =
     useWishlist();
 
   const [isWishedLocal, setIsWishedLocal] = useState(false);
-  const [lastActionWasAdd, setLastActionWasAdd] = useState(false);
 
   useEffect(() => {
     const isWished = wishlistItems.some((i) => i.productId === product.id);
     setIsWishedLocal(isWished);
   }, [wishlistItems, product.id]);
 
-  const handleClick = () => {
-    if (!session?.user) return;
+  if (status === "loading") return null;
+  if (!session?.user?.id) return null;
 
+  const handleClick = () => {
     const isWished = wishlistItems.some((i) => i.productId === product.id);
 
     // ✅ Case: product is already wished, and no color/size selected → remove all variants
     if (isWished && !selectedColors?.length && !selectedSizes?.length) {
       setIsWishedLocal(false);
-      setLastActionWasAdd(false);
       removeProductFromWishlist(product.id);
       onFeedback?.("removed");
       return;
@@ -60,7 +58,6 @@ export default function ProductWishlist({
       alreadySaved.includes(key)
     );
 
-    // ✅ If all selected variants already exist → show toast, do nothing
     if (allVariantsAlreadySaved) {
       onFeedback?.("already");
       return;
@@ -68,7 +65,6 @@ export default function ProductWishlist({
 
     // ✅ Add new variants
     setIsWishedLocal(true);
-    setLastActionWasAdd(true);
     addToWishlist({
       productId: product.id,
       selectedColors,
@@ -76,8 +72,6 @@ export default function ProductWishlist({
     });
     onFeedback?.("success");
   };
-
-  if (!session?.user) return null;
 
   return (
     <div

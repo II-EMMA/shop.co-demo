@@ -5,24 +5,45 @@ import { ProductCards } from "@/mocks/Products";
 import { RiDeleteBinFill } from "react-icons/ri";
 import { BsCartPlus } from "react-icons/bs";
 import gsap from "gsap";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import getNearestColorName from "@/lib/wishlist/getNearestColorName";
 
-export default function WishlistCard() {
+export default function WishlistCard({
+  items: externalItems,
+  isOwner,
+  onItemRemoved,
+}) {
   const { wishlistItems, removeFromWishlist } = useWishlist();
   const containerRef = useRef();
+  const [localItems, setLocalItems] = useState([]);
 
+  // Sync localItems with external or context
   useEffect(() => {
-    const items = containerRef.current.querySelectorAll(".wishlist-row");
-    gsap.set(items, { opacity: 0, y: 20 });
-    gsap.to(items, {
-      opacity: 1,
-      y: 0,
-      duration: 0.5,
-      stagger: 0.1,
-      ease: "power2.out",
-    });
-  }, [wishlistItems]);
+    setLocalItems(externalItems || wishlistItems);
+  }, [externalItems, wishlistItems]);
+
+  // Animate on load
+  useEffect(() => {
+    const rows = containerRef.current?.querySelectorAll(".wishlist-row");
+    if (rows?.length) {
+      gsap.set(rows, { opacity: 0, y: 20 });
+      gsap.to(rows, {
+        opacity: 1,
+        y: 0,
+        duration: 0.5,
+        stagger: 0.1,
+        ease: "power2.out",
+      });
+    }
+  }, [localItems]);
+
+  if (!localItems?.length) {
+    return (
+      <p className="text-center text-black/50 font-satoshi">
+        This wishlist is empty or not found.
+      </p>
+    );
+  }
 
   const handleBuyNow = async (item) => {
     const product = ProductCards.find((p) => p.id === item.productId);
@@ -52,12 +73,18 @@ export default function WishlistCard() {
     }
   };
 
+  const handleRemove = async (variantKey) => {
+    await removeFromWishlist(variantKey);
+    setLocalItems((prev) => prev.filter((i) => i.variantKey !== variantKey));
+    onItemRemoved?.(); // ✅ trigger parent re-fetch if provided
+  };
+
   return (
     <div
       ref={containerRef}
       className="md:w-full flex flex-col gap-y-4 md:p-6 py-8 px-6 rounded-[20px] border border-black/10 mx-auto"
     >
-      {wishlistItems.map((item) => {
+      {localItems.map((item) => {
         const product = ProductCards.find((p) => p.id === item.productId);
         const image = product?.image?.src || "/fallback.svg";
         const title = product?.title || "Unknown Product";
@@ -83,18 +110,18 @@ export default function WishlistCard() {
               <h4 className="font-satoshi font-bold text-lg">{title}</h4>
             </div>
 
+            {/* Mobile Info */}
             <div className="md:hidden flex flex-row justify-between items-center w-full md:flex-col md:items-start md:gap-y-1">
               <div className="flex flex-col text-sm font-satoshi text-black/60 min-w-[100px]">
                 {item.selectedSize && <p>Size: {item.selectedSize}</p>}
                 {item.selectedColor && <p>Color: {colorName}</p>}
               </div>
-
               <div className="font-satoshi font-bold text-[20px] min-w-[80px] text-right md:text-left">
                 {price}
               </div>
             </div>
 
-            {/* Info */}
+            {/* Desktop Info */}
             <div className="md:flex hidden flex-col text-sm font-satoshi text-black/60 min-w-[100px]">
               {item.selectedSize && <p>Size: {item.selectedSize}</p>}
               {item.selectedColor && <p>Color: {colorName}</p>}
@@ -107,8 +134,8 @@ export default function WishlistCard() {
 
             {/* Actions */}
             <div className="flex flex-row items-center md:gap-x-4 md:w-auto justify-between md:justify-stretch w-full px-3 md:px-0">
-              {/* Buy Now */}
               <button
+                type="button"
                 onClick={() => handleBuyNow(item)}
                 className="bg-black text-white px-4 py-2 rounded-full hover:bg-gray-800 transition-all flex items-center gap-x-2"
               >
@@ -116,13 +143,17 @@ export default function WishlistCard() {
                 <span className="text-sm font-satoshi">Buy now</span>
               </button>
 
-              {/* Delete */}
-              <button onClick={() => removeFromWishlist(item.variantKey)}>
-                <RiDeleteBinFill
-                  size={24}
-                  className="text-[#FF3333] cursor-pointer"
-                />
-              </button>
+              {isOwner && (
+                <button
+                  type="button"
+                  onClick={() => handleRemove(item.variantKey)}
+                >
+                  <RiDeleteBinFill
+                    size={24}
+                    className="text-[#FF3333] cursor-pointer"
+                  />
+                </button>
+              )}
             </div>
           </div>
         );

@@ -5,14 +5,16 @@ import { FaHeart } from "react-icons/fa";
 import gsap from "gsap";
 import { useWishlist } from "@/context/WishlistContext";
 import Link from "next/link";
+import useSessionUser from "@/hooks/useSessionUser";
 
 export default function WishlistIconButton() {
   const { wishlistItems } = useWishlist();
   const badgeRef = useRef(null);
   const count = wishlistItems.length;
+  const user = useSessionUser();
 
   useEffect(() => {
-    if (!badgeRef.current) return;
+    if (!badgeRef.current || count === 0) return;
     gsap.fromTo(
       badgeRef.current,
       { scale: 1.4, opacity: 0 },
@@ -20,14 +22,20 @@ export default function WishlistIconButton() {
     );
   }, [count]);
 
+  const wishlistLink = user?.id ? `/en/wishlist/${user.id}` : null;
+
   return (
     <div className="relative w-10 h-10 flex items-center justify-center -ml-1">
-      <Link href="/en/wishlist">
-        <FaHeart
-          className="cursor-pointer text-red-500 sm:w-auto sm:h-auto w-5 h-5"
-          size={22}
-        />
-      </Link>
+      {wishlistLink ? (
+        <Link href={wishlistLink}>
+          <FaHeart
+            className="cursor-pointer text-red-500 sm:w-auto sm:h-auto w-5 h-5"
+            size={22}
+          />
+        </Link>
+      ) : (
+        <FaHeart className="text-gray-300 w-5 h-5" />
+      )}
       {count > 0 && (
         <div
           ref={badgeRef}
