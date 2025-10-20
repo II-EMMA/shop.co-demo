@@ -3,25 +3,31 @@
 import { useEffect } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 
-export default function scrollToTop() {
+export default function ScrollToTop() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    const hash = window.location.hash;
+    const handleScrollReset = () => {
+      const hasHash = window.location.hash.length > 0;
 
-    if (hash) {
-      // Wait a tick so the DOM is ready
-      requestAnimationFrame(() => {
-        const el = document.querySelector(hash);
-        if (el) {
-          el.scrollIntoView({ behavior: "smooth" });
-        }
-      });
-    } else {
-      // No hash → scroll to top
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
+      // ✅ Only scroll to top if there's no hash target
+      if (!hasHash) {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    };
+
+    // ✅ Trigger on route change, query change, or hash change
+    handleScrollReset();
+
+    // ✅ Listen to browser back/forward and manual hash updates
+    window.addEventListener("hashchange", handleScrollReset);
+    window.addEventListener("popstate", handleScrollReset);
+
+    return () => {
+      window.removeEventListener("hashchange", handleScrollReset);
+      window.removeEventListener("popstate", handleScrollReset);
+    };
   }, [pathname, searchParams]);
 
   return null;
