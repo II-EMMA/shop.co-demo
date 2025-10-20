@@ -1,3 +1,4 @@
+// app/api/users/route.js
 import mongoose from "mongoose";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/authOptions";
@@ -16,28 +17,19 @@ export async function POST() {
 
   await connectDB();
 
-  const existingUser = await User.findOne({ email: session.user.email });
+  // ✅ Update or return existing user, don’t insert manually
+  const user = await User.findOneAndUpdate(
+    { email: session.user.email },
+    {
+      $set: {
+        name: session.user.name,
+        image: session.user.image,
+      },
+    },
+    { upsert: true, new: true }
+  );
 
-  if (existingUser) {
-    return Response.json({ status: "User already exists" });
-  }
-
-  const newUser = new User({
-    name: session.user.name,
-    email: session.user.email,
-    image: session.user.image,
-    createdAt: new Date(),
-  });
-
-  try {
-    await newUser.save();
-    return Response.json({ status: "User inserted" });
-  } catch (error) {
-    return Response.json(
-      { error: "Insert failed", details: error.message },
-      { status: 500 }
-    );
-  }
+  return Response.json({ status: "User ensured", user });
 }
 
 export async function GET() {
